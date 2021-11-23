@@ -1,9 +1,11 @@
+#Glicerina, Biodisel
+
 import socket
 
 from argparse import ArgumentParser
 from random import randint
 from parse import parse
-from time import perf_counter_ns, sleep
+
 
 
 argparser = ArgumentParser()
@@ -32,12 +34,15 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             # handle null-terminated strings
             msg = msg.replace("\x00", "")
 
-            parsed = parse("{}", msg)
+            parsed = parse("{} {}", msg)
+
             if parsed is None:
               break
 
             batch = float(parsed[0])
 
+            produto = str(parsed[1])
+
             conteudo += batch
 
-            print('Conteudo:',conteudo)
+            print('Conteudo:',conteudo, produto)

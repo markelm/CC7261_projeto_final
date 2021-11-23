@@ -1,0 +1,33 @@
+Óleo Residual (output) -> 1-2 / l0s
+(input): oleo -> Tanque de Óleo -> (output): oleo - 0.5 l/s
+NaOH (output): 0.25 l/s
+EtOH (output): 0.125 l/s
+
+(input): NaOH -> Tanque1 -> (output): 1 l/s 
+(input): EtOH -> Tanque2 -> (output): 1 l/s
+
+#1 litro de cada ou ambos?
+
+(input): Mix(NaOH, 2*EtOH, Oleo) -> Reator -> (output): 6 l/s
+
+Decantador (repouso 5s/3l [Capacidade Maxima 10 l]) ->(output): (0.03*Glic, 0.09*EtOH, 0.88*Solucao_Lavagem)
+
+(input): solucao_lavagem -> Tanque_Lavagem1 [1.5 l/s] -> (output): (solucao_lavagem - 0.095*solucao_lavagem)
+(input): solucao_lavagem -> Tanque_Lavagem2 [1.5 l/s] -> (output): (solucao_lavagem - 0.095*solucao_lavagem)
+(input): solucao_lavagem -> Tanque_Lavagem3 [1.5 l/s] -> (output): (solucao_lavagem - 0.095*solucao_lavagem)
+
+(input): EtOH -> secador [5s/l, perde 2.5% do volume] -> (output): (0.025*EtOH)
+
+(input): solucao_lavagem -> secador [5s/l, perde 2.5% do volume] -> (output): (0.025*solucao_lavagem)
+
+(input): solucao_lavagem -> tanque_biodisel
+
+
+
+
+
+
+
+
+
+
