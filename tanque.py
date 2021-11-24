@@ -14,13 +14,11 @@ args = argparser.parse_args()
 conteudo = 0
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-  s.bind(('localhost', randint(49152, 65535)))
-  print(s)
-
-  # Communication with server 2
-
-
+  port = randint(49152, 65535)
+  s.bind(('localhost', port))
   s.listen()
+  print("Listening on port", port)
+
   while True:
       conexao, addr = s.accept()
       with conexao:
@@ -40,9 +38,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
               break
 
             batch = float(parsed[0])
-
             produto = str(parsed[1])
 
             conteudo += batch
 
-            print('Conteudo:',conteudo, produto)
+            print(f'{produto}:',conteudo)
+

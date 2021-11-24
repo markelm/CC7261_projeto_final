@@ -1,4 +1,4 @@
-##Fonde produtos (Oleo, EtOH, NaOH, Agua)
+##Fonte de produtos (Oleo, EtOH, NaOH, Agua)
 
 import socket
 
@@ -20,11 +20,11 @@ vazao = args.throughput
 while True:
   with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((args.hostname, args.portnumber))
-    print(s) 
+    #print(s) 
 
     sleep(args.intervalo)
     msg = f"{vazao:.3f} {args.saida}"
-    print(msg, end=": ")
+    print(msg)
     b_string = bytes(msg, 'utf-8')
     s.sendall(b_string)
 
