@@ -3,9 +3,10 @@
 import socket
 
 from argparse import ArgumentParser
-from time import time
-from random import randint
 from parse import parse
+from random import randint
+from sys import stderr
+from time import time
 
 
 argparser = ArgumentParser()
@@ -44,10 +45,12 @@ onBreak = False
 startTime = time()
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-  port = randint(49152, 65535) 
+  s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+  #randint(49152, 65535)
+  port = 50505
   s.bind(('localhost', port))
   s.listen()
-  print("listening on port", port)
+  print(f"decantador listening on port: {port}", file=stderr)
 
   while True:
     #conteudo >= vazao and 
@@ -69,7 +72,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         #print(c)
 
         msg = f'{(saida * 0.03):.3f} Glicerina'
-        print(msg)
+        print("decantador:", msg)
         b_string = bytes(msg, 'utf-8')
         c.sendall(b_string)
 
@@ -79,7 +82,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         #print(c)
 
         msg = f'{(saida * 0.09):.3f} EtOH'
-        print(msg)
+        print("decantador:", msg)
         b_string = bytes(msg, 'utf-8')
         c.sendall(b_string)
 
@@ -89,7 +92,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         #print(c)
 
         msg = f'{(saida * 0.88):.3f} Solucao'
-        print(msg)
+        print("decantador:", msg)
         b_string = bytes(msg, 'utf-8')
         c.sendall(b_string)
 
@@ -126,7 +129,5 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
           b_string = bytes(msg, "utf-8")
           conexao.sendall(b_string)
 
-          #conexao.close()
-
-          print(f'{produto}:', conteudo)
+          #print(f"decantador: {conteudo:.3f} {produto}")
 
