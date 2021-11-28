@@ -44,6 +44,8 @@ conteudo = 0
 onBreak = False
 startTime = time()
 
+hasStarted = False
+
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
   s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
   #randint(49152, 65535)
@@ -59,6 +61,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         onBreak = True
 
     elapsed = time() - startTime
+  
+    s.settimeout(1)
+    if not hasStarted:
+      s.settimeout(None)
 
     if elapsed >= intervalo and onBreak:
       processed = min(conteudo, vazao)
@@ -97,37 +103,42 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         c.sendall(b_string)
 
     else:
-      conexao, addr = s.accept()
-      with conexao:
-        # print("client connected: ", addr)
-        while True:
-          dados = conexao.recv(1024)
-          if not dados:
-              break
+      try:
+        conexao, addr = s.accept()
+        with conexao:
+          # print("client connected: ", addr)
+          while True:
+            dados = conexao.recv(1024)
+            if not dados:
+                break
 
-          msg = dados.decode()
-          # handle null-terminated strings
-          msg = msg.replace("\x00", "")
+            msg = dados.decode()
+            # handle null-terminated strings
+            msg = msg.replace("\x00", "")
 
-          parsed = parse("{} {}", msg)
-          if parsed is None:
-              break
+            parsed = parse("{} {}", msg)
+            if parsed is None:
+                brea
+ 
+            hasStarted = True
 
-          batch = float(parsed[0])
-          produto = str(parsed[1])
+            batch = float(parsed[0])
+            produto = str(parsed[1])
 
-          # todo: limitar capacidade
-          conteudo += batch
-          aceito = batch
+            # todo: limitar capacidade
+            conteudo += batch
+            aceito = batch
 
-          if conteudo > capacidade:
-            excesso = conteudo - capacidade
-            conteudo = capacidade
-            aceito = batch - excesso
+            if conteudo > capacidade:
+              excesso = conteudo - capacidade
+              conteudo = capacidade
+              aceito = batch - excesso
 
-          msg = f"{aceito:.3f} Solucao"
-          b_string = bytes(msg, "utf-8")
-          conexao.sendall(b_string)
+            msg = f"{aceito:.3f} Solucao"
+            b_string = bytes(msg, "utf-8")
+            conexao.sendall(b_string)
 
-          #print(f"decantador: {conteudo:.3f} {produto}")
+            #print(f"decantador: {conteudo:.3f} {produto}")
+      except OSError as msg:
+        continue
 

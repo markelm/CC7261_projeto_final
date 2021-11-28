@@ -3,8 +3,10 @@
 import socket
 
 from argparse import ArgumentParser
+from async_timeout import timeout
 from parse import parse
 from random import randint
+from select import select
 from sys import stderr
 from time import time
 
@@ -29,10 +31,21 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     elapsed = end - start
     if hasStarted and elapsed >= args.timeout:
       break
+
+    s.settimeout(6)
+ 
+    if not hasStarted:
+      s.settimeout(None)
 	
+    #rs, ws, xs = select([s], [], [], s_timeout)
+    #for s_ in rs:
+
+    #async with timeout(s_timeout):
+      #await (conexao, addr) = s.accept()
     conexao, addr = s.accept()
     with conexao:
     #print("client connected: ", addr)
+      
       while True:
           dados = conexao.recv(1024)
           if not dados:

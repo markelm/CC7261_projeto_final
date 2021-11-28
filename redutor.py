@@ -39,6 +39,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     elapsed_all = time() - start_all
     if hasStarted and elapsed_all >= args.timeout:
       break
+  
+    s.settimeout(1)
+
+    if not hasStarted:
+      s.settimeout(None)
 
     #conteudo >= vazao and 
     if not onBreak:
@@ -66,30 +71,33 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         c.sendall(b_string)
 
     else:
-      conexao, addr = s.accept()
-      with conexao:
-        # print("client connected: ", addr)
-        while True:
-          dados = conexao.recv(1024)
-          if not dados:
-              break
+      try:
+        conexao, addr = s.accept()
+        with conexao:
+          # print("client connected: ", addr)
+          while True:
+            dados = conexao.recv(1024)
+            if not dados:
+                break
 
-          msg = dados.decode()
-          # handle null-terminated strings
-          msg = msg.replace("\x00", "")
+            msg = dados.decode()
+            # handle null-terminated strings
+            msg = msg.replace("\x00", "")
 
-          parsed = parse("{} {}", msg)
-          if parsed is None:
-              break
+            parsed = parse("{} {}", msg)
+            if parsed is None:
+                break
 
-          if not hasStarted:
-            start_all = time()
-            hasStarted = True
+            if not hasStarted:
+              start_all = time()
+              hasStarted = True
 
-          batch = float(parsed[0])
-          produto = str(parsed[1])
+            batch = float(parsed[0])
+            produto = str(parsed[1])
 
-          conteudo += batch
+            conteudo += batch
 
-          #print(f'{produto}:', conteudo)
+            #print(f'{produto}:', conteudo)
+      except OSError as msg:
+        continue 
 

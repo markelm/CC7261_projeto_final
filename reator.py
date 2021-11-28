@@ -27,8 +27,8 @@ startTime = time()
 
 conteudo = {'NaOH': 0, 'EtOH': 0, 'Oleo': 0}
 
-has_started = False
-start_all = time()
+hasStarted = False
+startAll = time()
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
   portnumber = randint(49152, 65535)
@@ -37,22 +37,28 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
   print(f"reator listening on port: {portnumber}", file=stderr)
 
   while True:
-    elapsed_all = time() - start_all
-    if has_started and elapsed_all >= args.timeout:
+    elapsedAll = time() - startAll
+    if hasStarted and elapsedAll >= args.timeout:
       break
+
+    s.settimeout(1)
+    if not hasStarted:
+      s.settimeout(None)
 
     parte = min(conteudo['EtOH']/2, conteudo['NaOH'], conteudo['Oleo'])
 
-    if parte > 0 and not onBreak:
+    if hasStarted and not onBreak:
         startTime = time()
         onBreak = True
 
     elapsed = time() - startTime
 
     if elapsed >= intervalo and onBreak:
-        nciclos += 1
         parte = min(conteudo['EtOH']/2, conteudo['NaOH'], conteudo['Oleo'])
         saida = min(4*parte, vazao)
+  
+        if parte > 0:
+          nciclos += 1
 
         fator_reducao = saida/4
         
@@ -89,46 +95,51 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     
             aceito = float(parsed[0])
             produto = str(parsed[1])
-
-            print("---")
-            print("reator: ciclo", nciclos)
-
-            for entrada in conteudo:
-              print(f"reator: {(conteudo[entrada]):.3f} {entrada}")
-
+            
             parte = aceito / 4
-            conteudo["EtOH"] -= 2 * parte
-            conteudo["NaOH"] -= parte
-            conteudo["Oleo"] -= parte
+
+            if parte > 0:
+              print("---")
+              print("reator: ciclo", nciclos)
+
+              for entrada in conteudo:
+                print(f"reator: {(conteudo[entrada]):.3f} {entrada}")
+
+              conteudo["EtOH"] -= 2 * parte
+              conteudo["NaOH"] -= parte
+              conteudo["Oleo"] -= parte
     
-            print(f"reator: {aceito:.3f} {produto}")
-            print("---\n")
+              print(f"reator: {aceito:.3f} {produto}")
+              print("---\n")
 
     else:
-      conexao, addr = s.accept()
-      with conexao:
-        # print("client connected: ", addr)
-        while True:
-          dados = conexao.recv(1024)
-          if not dados:
-              break
+      try:
+        conexao, addr = s.accept()
+        with conexao:
+          # print("client connected: ", addr)
+          while True:
+            dados = conexao.recv(1024)
+            if not dados:
+                break
 
-          msg = dados.decode()
-          # handle null-terminated strings
-          msg = msg.replace("\x00", "")
+            msg = dados.decode()
+            # handle null-terminated strings
+            msg = msg.replace("\x00", "")
 
-          parsed = parse("{} {}", msg)
-          if parsed is None:
-              break
+            parsed = parse("{} {}", msg)
+            if parsed is None:
+                break
 
-          if not has_started:
-            start_all = time()
-            has_started = True
+            if not hasStarted:
+              startAll = time()
+              hasStarted = True
 
-          batch = float(parsed[0])
-          entrada = str(parsed[1])
+            batch = float(parsed[0])
+            entrada = str(parsed[1])
 
-          conteudo[entrada] += batch
+            conteudo[entrada] += batch
 
-          #print(f"reator: {conteudo[entrada]} {entrada}")
+            #print(f"reator: {conteudo[entrada]} {entrada}")
+      except OSError as msg:
+        continue
 
