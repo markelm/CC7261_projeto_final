@@ -25,16 +25,17 @@ while True:
   #if elapsed >= args.timeout:
     #break
 
+  sleep(args.intervalo)
+
   with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((args.hostname, args.portnumber))
     #print(s) 
 
-    sleep(args.intervalo)
     if args.saida == "Oleo":
       vazao = randint(1000, 2000) / 1000
 
     msg = f"{vazao:.3f} {args.saida}"
     print("fonte:", msg)
     b_string = bytes(msg, 'utf-8')
-    s.sendall(b_string)
+    s.sendall(b_string)  
 
